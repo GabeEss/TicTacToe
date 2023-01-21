@@ -1,0 +1,21 @@
+#brd{
+    display: grid;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.rectangle {
+    height: 100px;
+    border: 2px solid black;
+    border-collapse: separate;
+    border-bottom: none;
+    border-right: none;
+  }
+
+.top-rectangle {
+    border-top: none;
+}
+
+.left-rectangle {
+    border-left: none;
+}
