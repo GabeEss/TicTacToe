@@ -17,19 +17,22 @@
     </board>
 </main>
 <footer>
-        <form>
+        <form id="player-form">
             <label>Enter Name: <input type="text" required></label>
             <label>Enter Name: <input type="text"></label>
+            <label>
+                <input type="radio" id="one-first" name="first" value="one" checked>Player One Starts
+                <input type="radio" id="two-first" name="first" value="two">Player Two Starts
+            </label>            
             <input type="submit" value="Start Game">
         </form>
         <div class="post-name">
             <label id="one-name"></label>
-            <div id="score"></div>
-        </div>
-        <div class="post-name">
             <label id="two-name"></label>
-            <div id="score"></div>
+            <label id="winner-name"></label>
+            <button id="reset">Reset</button>
         </div>
+
 </footer>
 </body>
 </html>
