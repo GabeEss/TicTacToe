@@ -164,6 +164,69 @@
     privateTurn = 0;
   }
 
+  function checkDraw() {
+    const boardDisplay = document.getElementById("brd");
+    const tiles = boardDisplay.children; // get tiles
+    let drawFlag = true;
+    for (let i = 0; i < tiles.length; i += 1) {
+      if (tiles[i].innerText === "") drawFlag = false; // If there is any empty tile, a draw is not called.
+    }
+
+    if (drawFlag === true) {
+      return true; // there is a draw
+    }
+    return false; // there is no draw
+  }
+
+  function drawGame() {
+    const showWinner = document.getElementById("winner-name");
+    showWinner.innerText = "Winner:";
+
+    setTimeout(() => {
+      const boardDisplay = document.getElementById("brd");
+      const tiles = boardDisplay.children; // get tiles to be filled in
+      for (let i = 0; i < tiles.length; i += 1) {
+        tiles[i].onclick = () => {}; // remove event listeners
+        tiles[i].innerText = ""; // remove text
+      }
+
+      // Needs to be in here, since this timeout happens last.
+      // Do not remove this flag.
+      privateFlag = false;
+    }, 1000); // Delays the board wipe by 1 second, prevents an extra X/O from spawning.
+
+    privateTurn = 0;
+  }
+
+  // The gameStateCheck function takes the turn number (even or odd for Xs and Os),
+  // player one object, and player two object.
+  // It checks to see if someone won and was even/odd.
+  // Then it checks which player was the starting player.
+  // It then sets the privateFlag to true (game over flag).
+  // Then it calls the gameOver function. If it is a draw, it calls the drawGame function.
+  // If nothing happens, the privateTurn variable increments.
+
+  function gameStateCheck(evenOdd, one, two) {
+    // Check if someone won and if they were X.
+    if (checkWinner() === true && evenOdd === "even") {
+      // Check if player one started/played Xs.
+      if (one.getStart() === true) {
+        privateFlag = true;
+        gameOver(one, "one"); // if one started, one wins
+      } else { privateFlag = true; gameOver(two, "two"); }
+    } else if (checkWinner() === true && evenOdd === "odd") {
+      if (one.getStart() !== true) {
+        privateFlag = true;
+        gameOver(one, "one"); // if one didn't start, one wins
+      } else if (one.getStart() === true) { privateFlag = true; gameOver(two, "two"); }
+    } else if (checkDraw() === true) {
+      privateFlag = true;
+      drawGame();
+    } else {
+      privateTurn += 1;
+    }
+  }
+
   // This function allows a tile's inner text to be filled with an X or an O when clicked.
   // Each time a tile is clicked. The checkWinner function is called. If it returns true,
   // the gameOver function is called.
@@ -178,31 +241,18 @@
       });
     }
     function generateXO(tile) {
+      // If tile is empty and the game is not over.
       if (tile.innerText === "" && privateFlag !== true) {
         if (privateTurn === 0 || privateTurn % 2 === 0) {
           tile.innerText = "X";
           // If "X" wins.
-          if (checkWinner() === true) {
-            if (one.getStart() === true) {
-              privateFlag = true;
-              gameOver(one, "one", two); // if one started, one wins
-            } else { privateFlag = true; gameOver(two, "two", one); }
-          } else {
-            privateTurn += 1;
-          }
+          gameStateCheck("even", one, two);
         } else {
           tile.innerText = "O";
           // If "O" wins
-          if (checkWinner() === true) {
-            if (one.getStart() !== true) {
-              privateFlag = true;
-              gameOver(one, "one", two); // if one didn't start, one wins
-            } else { privateFlag = true; gameOver(two, "two", one); }
-          } else {
-            privateTurn += 1;
-          }
+          gameStateCheck("odd", one, two);
         }
-      } else; // If tile is filled nothing happens.
+      }
     }
   }
 
