@@ -4,6 +4,10 @@
     grid-template-columns: 1fr 1fr 1fr;
 }
 
+#post-name {
+    display: none;
+}
+
 .rectangle {
     height: 100px;
     border: 2px solid black;
