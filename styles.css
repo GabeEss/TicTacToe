@@ -24,6 +24,10 @@
     border-left: none;
 }
 
+#gameset {
+    background-color: gold;
+}
+
 container{
     display: grid;
     grid-template-rows: 100px 1fr 1fr;

@@ -12,7 +12,6 @@
         if (i < 3) { newTile.classList.add("top-rectangle"); } // for css styling the top border
         if (i % 3 === 0) { newTile.classList.add("left-rectangle"); } // for css styling the left border
         newTile.classList.add("rectangle"); // give it the class rectangle to be styled in css
-        newTile.id = `tile${i}`; // "tile0", "tile1", et cetera.
         boardDisplay.append(newTile); // append each tile to the board
       }
     }
@@ -74,6 +73,11 @@
     };
   }
 
+  // The checkWinner function generates the tiles and puts each winning combination into an array.
+  // Then the array is added to a set and if the size is 1, the winner has been found.
+  // The checkWinner function then colors the innerText of the winning combination gold
+  // and returns true.
+
   function checkWinner() {
     const boardDisplay = document.getElementById("brd");
     const tiles = boardDisplay.children;
@@ -86,7 +90,12 @@
       }
       // If all the objects in a Set are the same, the size will be 1.
       // Check to make sure final element isn't empty/falsey.
-      if (new Set(row).size === 1 && row[2] !== "") { return true; } // return to checkRow() call statement
+      if (new Set(row).size === 1 && row[2] !== "") {
+        for (let i = startIndex; i <= endIndex; i += 1) {
+          tiles[i].setAttribute("id", "gameset");
+        }
+        return true;
+      } // return to checkRow() call statement
       return false;
     };
 
@@ -99,7 +108,11 @@
       for (let i = startIndex; i <= endIndex; i += 3) {
         column.push(tiles[i].innerText);
       }
-      if (new Set(column).size === 1 && column[2] !== "") return true;
+      if (new Set(column).size === 1 && column[2] !== "") {
+        for (let i = startIndex; i <= endIndex; i += 3) {
+          tiles[i].setAttribute("id", "gameset");
+        } return true;
+      }
       return false;
     };
 
@@ -112,7 +125,11 @@
       for (let i = startIndex; i <= endIndex; i += 4) {
         diag.push(tiles[i].innerText);
       }
-      if (new Set(diag).size === 1 && diag[2] !== "") return true;
+      if (new Set(diag).size === 1 && diag[2] !== "") {
+        for (let i = startIndex; i <= endIndex; i += 4) {
+          tiles[i].setAttribute("id", "gameset");
+        } return true;
+      }
       return false;
     };
 
@@ -123,7 +140,11 @@
       for (let i = startIndex; i <= endIndex; i += 2) {
         diag.push(tiles[i].innerText);
       }
-      if (new Set(diag).size === 1 && diag[2] !== "") return true;
+      if (new Set(diag).size === 1 && diag[2] !== "") {
+        for (let i = startIndex; i <= endIndex; i += 2) {
+          tiles[i].setAttribute("id", "gameset");
+        } return true;
+      }
       return false;
     };
 
@@ -152,6 +173,7 @@
       const boardDisplay = document.getElementById("brd");
       const tiles = boardDisplay.children; // get tiles to be filled in
       for (let i = 0; i < tiles.length; i += 1) {
+        tiles[i].removeAttribute("id");
         tiles[i].onclick = () => {}; // remove event listeners
         tiles[i].innerText = ""; // remove text
       }
@@ -256,6 +278,16 @@
     }
   }
 
+  function aiGame(one, two) {
+    const boardDisplay = document.getElementById("brd");
+    const tiles = boardDisplay.children; // get tiles to be filled in
+    for (let i = 0; i < tiles.length; i += 1) {
+      tiles[i].addEventListener("click", () => {
+
+      });
+    }
+  }
+
   // Gets the player inputs from a form object when it is submitted.
   // Creates two players with names, scores, and start variables.
   function getPlayerInput() {
@@ -277,7 +309,7 @@
     }
 
     displayScore(playerOne, playerTwo); // Initial score display.
-    playGame(playerOne, playerTwo); // Controls the game state.
+    if (playerTwo.getName() === "Computer") { aiGame(playerOne, playerTwo); } else { playGame(playerOne, playerTwo); } // Controls the game state.
   }
 
   // Form contains the following options: to name the first and second player,
