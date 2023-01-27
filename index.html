@@ -9,29 +9,36 @@
     <script src="main.js" defer></script>
 </head>
 <body>
-<header>
-    <h1>Play TicTacToe</h1>
-</header>
-<main>
-    <board id="brd">
-    </board>
-</main>
-<footer>
-        <form id="player-form">
-            <label>Enter Name: <input type="text" required></label>
-            <label>Enter Name: <input type="text"></label>
-            <label>
-                <input type="radio" id="one-first" name="first" value="one" checked>Player One Starts
-                <input type="radio" id="two-first" name="first" value="two">Player Two Starts
-            </label>            
-            <input type="submit" value="Start Game">
-        </form>
-        <div id="post-name">
-            <label id="one-name"></label>
-            <label id="two-name"></label>
-            <label id="winner-name"></label>
-            <span>Refresh the page to reset the game.</span>
-        </div>
-</footer>
+    <container>
+        <header>
+            <h1>Play TicTacToe</h1>
+        </header>
+        <main>
+            <board id="brd">
+            </board>
+        </main>
+        <footer>
+                <form id="player-form">
+                    <div id="form-names">
+                        <label>Player 1's Name: <input type="text" required name="nameOne"></label>
+                        <label>Player 2's Name: <input type="text" name="nameTwo"></label>
+                    </div>
+                    <label>
+                        <label>Who starts?</label>
+                        <input type="radio" id="one-first" name="first" value="one" checked>Player 1
+                        <input type="radio" id="two-first" name="first" value="two">Player 2
+                    </label>
+                    <div id="start-game"><input type="submit" value="Start Game"></div>
+                </form>
+                <div id="post-name">
+                    <game-names>
+                        <label id="one-name"></label>
+                        <label id="two-name"></label>
+                    </game-names>
+                    <result><label id="winner-name"></label></result>
+                    <game-notices><span>Refresh the page to reset the game.</span></game-notices>
+                </div>
+        </footer>
+    </container>
 </body>
 </html>

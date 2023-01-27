@@ -23,3 +23,76 @@
 .left-rectangle {
     border-left: none;
 }
+
+container{
+    display: grid;
+    grid-template-rows: 100px 1fr 1fr;
+}
+
+header{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#brd>div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+}
+
+footer {
+    padding-top: 50px;
+}
+
+#player-form {
+    
+}
+
+#form-names>label{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+    gap: 5px;
+}
+
+#player-form>label{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+}
+
+#player-form>#start-game{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+}
+
+#post-name{
+    gap: 10px;
+}
+
+game-names{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+result {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+}
+
+game-notices {
+    padding-top: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

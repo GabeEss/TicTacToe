@@ -180,7 +180,7 @@
 
   function drawGame() {
     const showWinner = document.getElementById("winner-name");
-    showWinner.innerText = "Winner:";
+    showWinner.innerText = "The last game ended in a draw.";
 
     setTimeout(() => {
       const boardDisplay = document.getElementById("brd");
@@ -259,8 +259,8 @@
   // Gets the player inputs from a form object when it is submitted.
   // Creates two players with names, scores, and start variables.
   function getPlayerInput() {
-    const playerOneInput = form.elements[0].value; // player one name
-    const playerTwoInput = form.elements[1].value; // player two name
+    const playerOneInput = form.elements.nameOne.value; // player one name
+    const playerTwoInput = form.elements.nameTwo.value; // player two name
     const startChoice = form.elements.first.value; // the potential values: "one" or "two"
     const playerOne = createPlayer(playerOneInput, 0); // create player one
     const playerTwo = createPlayer("Computer", 0); // create player two
