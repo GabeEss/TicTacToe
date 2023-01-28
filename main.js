@@ -1,6 +1,6 @@
 // Immediately Invoked Function Expression (IIFE), so I can have private variables
 (function () {
-  let privateTurn = 0; // global variable in a private scope
+  let privateTurn = 0; // marks the current turn during the game
   let privateFlag = false; // prevent inputs during game over
 
   // The game board is also an IIFE.
@@ -220,8 +220,8 @@
     privateTurn = 0;
   }
 
-  // The gameStateCheck function takes the turn number (even or odd for Xs and Os),
-  // player one object, and player two object.
+  // The gameStateCheck function fins out if the turn is even or odd, takes the
+  // player one object and player two object.
   // It checks to see if someone won and was even/odd.
   // Then it checks which player was the starting player.
   // It then sets the privateFlag to true (game over flag).
@@ -234,12 +234,12 @@
       // Check if player one started/played Xs.
       if (one.getStart() === true) {
         privateFlag = true;
-        gameOver(one, "one"); // if one started, one wins
+        gameOver(one, "one"); // if one started, and even/X wins, then one wins
       } else { privateFlag = true; gameOver(two, "two"); }
     } else if (checkWinner() === true && evenOdd === "odd") {
       if (one.getStart() !== true) {
         privateFlag = true;
-        gameOver(one, "one"); // if one didn't start, one wins
+        gameOver(one, "one"); // if one didn't start, and odd/O wins, then one wins
       } else if (one.getStart() === true) { privateFlag = true; gameOver(two, "two"); }
     } else if (checkDraw() === true) {
       privateFlag = true;
@@ -278,13 +278,264 @@
     }
   }
 
+  // // Find out if it's the computer's turn. Returns true if it is, false if not.
+  // function aiTurn(two) {
+  //   // if starts and turn is even
+  //   if (two.getStart() === true && privateTurn % 2 === 0) { return true; }
+  //   // if second and turn is odd
+  //   if (two.getStart() !== true && privateTurn % 2 !== 0) { return true; }
+  //   return false;
+  // }
+
+  // Handles the computer's first move.
+  function aiStarts(two, tiles) {
+    // If computer can start and it's turn 0, fill the middle tile.
+    if (two.getStart() === true && privateTurn === 0) {
+      tiles[4].innerText = "X";
+      privateTurn += 1;
+    }
+  }
+
+  // Checks to see if the AI has two in a row with a spot waiting to be filled.
+  function aiSelfWin(two) {
+    const boardDisplay = document.getElementById("brd");
+    const tiles = boardDisplay.children;
+    let opponent; // player one is either X or O
+    let self; // computer is either X or O
+    if (two.getStart() === true) { opponent = "O"; self = "X"; } else { opponent = "X"; self = "O"; }
+
+    const checkRow = (startIndex, endIndex) => {
+      let enemyCount = 0; // counter for number of tiles an enemy player has on a given row
+      let selfCount = 0; // counter for number of tiles the computer has on a given row
+      let tileFill; // missing tile to fill
+
+      for (let i = startIndex; i <= endIndex; i += 1) {
+        if (tiles[i].innerText === opponent) { enemyCount += 1; }
+        if (tiles[i].innerText === self) { selfCount += 1; }
+        if (tiles[i].innerText === "") { tileFill = tiles[i]; }
+      }
+
+      // If the selfCount is two on a row and the enemy count is 0, then fill the last tile.
+      if (selfCount === 2 && enemyCount === 0) { tileFill.innerText = self; return true; }
+      return false;
+    };
+
+    if (checkRow(0, 2) === true) return true; // check rows
+    if (checkRow(3, 5) === true) return true;
+    if (checkRow(6, 8) === true) return true;
+
+    const checkColumn = (startIndex, endIndex) => {
+      let enemyCount = 0; // counter for number of tiles an enemy player has on a given row
+      let selfCount = 0; // counter for number of tiles the computer has on a given row
+      let tileFill; // missing tile to fill
+
+      for (let i = startIndex; i <= endIndex; i += 3) {
+        if (tiles[i].innerText === opponent) { enemyCount += 1; }
+        if (tiles[i].innerText === self) { selfCount += 1; }
+        if (tiles[i].innerText === "") { tileFill = tiles[i]; }
+      }
+
+      if (selfCount === 2 && enemyCount === 0) { tileFill.innerText = self; return true; }
+      return false;
+    };
+
+    if (checkColumn(0, 6) === true) return true; // check columns
+    if (checkColumn(1, 7) === true) return true;
+    if (checkColumn(2, 8) === true) return true;
+
+    const checkDiagLtoR = (startIndex, endIndex) => {
+      let enemyCount = 0; // counter for number of tiles an enemy player has on a given row
+      let selfCount = 0; // counter for number of tiles the computer has on a given row
+      let tileFill; // missing tile to fill
+
+      for (let i = startIndex; i <= endIndex; i += 4) {
+        if (tiles[i].innerText === opponent) { enemyCount += 1; }
+        if (tiles[i].innerText === self) { selfCount += 1; }
+        if (tiles[i].innerText === "") { tileFill = tiles[i]; }
+      }
+
+      if (selfCount === 2 && enemyCount === 0) { tileFill.innerText = self; return true; }
+      return false;
+    };
+
+    if (checkDiagLtoR(0, 8) === true) return true; // check diagonal left to right
+
+    const checkDiagRtoL = (startIndex, endIndex) => {
+      let enemyCount = 0; // counter for number of tiles an enemy player has on a given row
+      let selfCount = 0; // counter for number of tiles the computer has on a given row
+      let tileFill; // missing tile to fill
+
+      for (let i = startIndex; i <= endIndex; i += 2) {
+        if (tiles[i].innerText === opponent) { enemyCount += 1; }
+        if (tiles[i].innerText === self) { selfCount += 1; }
+        if (tiles[i].innerText === "") { tileFill = tiles[i]; }
+      }
+
+      if (selfCount === 2 && enemyCount === 0) { tileFill.innerText = self; return true; }
+      return false;
+    };
+
+    if (checkDiagRtoL(2, 6) === true) return true; // check diagonal right to left
+
+    return false;
+  }
+
+  // Checks to see if the player has two in a row with a spot waiting to be filled.
+  function aiEnemyWin(two) {
+    const boardDisplay = document.getElementById("brd");
+    const tiles = boardDisplay.children;
+    let opponent; // player one is either X or O
+    let self; // computer is either X or O
+    if (two.getStart() === true) { opponent = "O"; self = "X"; } else { opponent = "X"; self = "O"; }
+
+    const checkRow = (startIndex, endIndex) => {
+      let enemyCount = 0; // counter for number of tiles an enemy player has on a given row
+      let selfCount = 0; // counter for number of tiles the computer has on a given row
+      let tileFill; // missing tile to fill
+
+      for (let i = startIndex; i <= endIndex; i += 1) {
+        if (tiles[i].innerText === opponent) { enemyCount += 1; }
+        if (tiles[i].innerText === self) { selfCount += 1; }
+        if (tiles[i].innerText === "") { tileFill = tiles[i]; }
+      }
+
+      // If the selfCount is 0 on a row and the enemy count is 2, then fill the last tile.
+      if (enemyCount === 2 && selfCount === 0) { tileFill.innerText = self; return true; }
+      return false;
+    };
+
+    if (checkRow(0, 2) === true) return true; // check rows
+    if (checkRow(3, 5) === true) return true;
+    if (checkRow(6, 8) === true) return true;
+
+    const checkColumn = (startIndex, endIndex) => {
+      let enemyCount = 0; // counter for number of tiles an enemy player has on a given row
+      let selfCount = 0; // counter for number of tiles the computer has on a given row
+      let tileFill; // missing tile to fill
+
+      for (let i = startIndex; i <= endIndex; i += 3) {
+        if (tiles[i].innerText === opponent) { enemyCount += 1; }
+        if (tiles[i].innerText === self) { selfCount += 1; }
+        if (tiles[i].innerText === "") { tileFill = tiles[i]; }
+      }
+
+      if (enemyCount === 2 && selfCount === 0) { tileFill.innerText = self; return true; }
+      return false;
+    };
+
+    if (checkColumn(0, 6) === true) return true; // check columns
+    if (checkColumn(1, 7) === true) return true;
+    if (checkColumn(2, 8) === true) return true;
+
+    const checkDiagLtoR = (startIndex, endIndex) => {
+      let enemyCount = 0; // counter for number of tiles an enemy player has on a given row
+      let selfCount = 0; // counter for number of tiles the computer has on a given row
+      let tileFill; // missing tile to fill
+
+      for (let i = startIndex; i <= endIndex; i += 4) {
+        if (tiles[i].innerText === opponent) { enemyCount += 1; }
+        if (tiles[i].innerText === self) { selfCount += 1; }
+        if (tiles[i].innerText === "") { tileFill = tiles[i]; }
+      }
+
+      if (enemyCount === 2 && selfCount === 0) { tileFill.innerText = self; return true; }
+      return false;
+    };
+
+    if (checkDiagLtoR(0, 8) === true) return true; // check diagonal left to right
+
+    const checkDiagRtoL = (startIndex, endIndex) => {
+      let enemyCount = 0; // counter for number of tiles an enemy player has on a given row
+      let selfCount = 0; // counter for number of tiles the computer has on a given row
+      let tileFill; // missing tile to fill
+
+      for (let i = startIndex; i <= endIndex; i += 2) {
+        if (tiles[i].innerText === opponent) { enemyCount += 1; }
+        if (tiles[i].innerText === self) { selfCount += 1; }
+        if (tiles[i].innerText === "") { tileFill = tiles[i]; }
+      }
+
+      if (enemyCount === 2 && selfCount === 0) { tileFill.innerText = self; return true; }
+      return false;
+    };
+
+    if (checkDiagRtoL(2, 6) === true) return true; // check diagonal right to left
+
+    return false;
+  }
+
+  // If the AI cannot find two in a row from previous functions,
+  // then it will choose a random unfilled tile and fill it.
+  function aiRandomMove(two, tiles) {
+    let flag = false;
+    // If computer starts and it's turn 0, fill the middle tile.
+    for (let i = 0; i < tiles.length; i += 1) {
+      if (tiles[i].innerText === "") {
+        if (two.getStart() === true) {
+          tiles[i].innerText = "X";
+          flag = true;
+          break;
+        } else {
+          tiles[i].innerText = "O"; // marks first available tile, if going second
+          flag = true;
+          break;
+        }
+      }
+    }
+    if (flag === true) return true;
+    return false;
+  }
+
+  function aiPlays(two) {
+    const boardDisplay = document.getElementById("brd");
+    const tiles = boardDisplay.children;
+
+    if (aiSelfWin(two) === true) return true; // check to see if the AI can win
+    if (aiEnemyWin(two) === true) return true; // check to if the player can win
+    if (aiRandomMove(two, tiles) === true) return true;
+    return false;
+  }
+
+  // The AI makes the first move, if the AI is going first.
+  // A click event is attached to each tile.
+  // When a move is made, the AI makes a corresponding move.
   function aiGame(one, two) {
     const boardDisplay = document.getElementById("brd");
     const tiles = boardDisplay.children; // get tiles to be filled in
+    aiStarts(two, tiles); // determines the AI's starting move, if X
     for (let i = 0; i < tiles.length; i += 1) {
       tiles[i].addEventListener("click", () => {
-
+        generateWithAI(tiles[i]);
       });
+    }
+
+    function generateWithAI(tile) {
+    // If tile is empty and the game is not over.
+      if (tile.innerText === "" && privateFlag !== true) {
+        if (privateTurn === 0 || privateTurn % 2 === 0) {
+          tile.innerText = "X";
+          // If player "X" wins.
+          gameStateCheck("even", one, two);
+          // AI follows player turn on the same click.
+          if (privateFlag !== true) {
+            setTimeout(() => {
+              aiPlays(two);
+              gameStateCheck("odd", one, two);
+            }, 1000);
+          } // check computer "O" win condition
+        } else {
+          tile.innerText = "O";
+          // If player "O" wins.
+          gameStateCheck("odd", one, two);
+          // AI follows player turn on the same click.
+          if (privateFlag !== true) {
+            setTimeout(() => {
+              aiPlays(two);
+              gameStateCheck("even", one, two);
+            }, 1000);
+          }
+        }
+      }
     }
   }
 
