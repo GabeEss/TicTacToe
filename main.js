@@ -156,7 +156,6 @@
   // The gameOver function ends the game, increments the player score, recalls the game state.
   // param one: the player object of the winner
   // param two: the winning player number (one or two)
-  // param three: the player object of the loser
   function gameOver(winner, playerNum) {
     winner.incrementScore();
     if (playerNum === "one") {
@@ -518,10 +517,8 @@
           gameStateCheck("even", one, two);
           // AI follows player turn on the same click.
           if (privateFlag !== true) {
-            setTimeout(() => {
-              aiPlays(two);
-              gameStateCheck("odd", one, two);
-            }, 1000);
+            aiPlays(two);
+            gameStateCheck("odd", one, two);
           } // check computer "O" win condition
         } else {
           tile.innerText = "O";
@@ -529,10 +526,8 @@
           gameStateCheck("odd", one, two);
           // AI follows player turn on the same click.
           if (privateFlag !== true) {
-            setTimeout(() => {
-              aiPlays(two);
-              gameStateCheck("even", one, two);
-            }, 1000);
+            aiPlays(two);
+            gameStateCheck("even", one, two);
           }
         }
       }
