@@ -2,6 +2,7 @@
 (function () {
   let privateTurn = 0; // marks the current turn during the game
   let privateFlag = false; // prevent inputs during game over
+  let aiInGame = false; // If the game involves the computer.
 
   // The game board is also an IIFE.
   const myGameBoard = (function () {
@@ -153,10 +154,20 @@
     return false;
   }
 
+  // Handles the computer's first move.
+  function aiStarts(two, tiles) {
+    // If computer can start and it's turn 0, fill the middle tile.
+    if (two.getStart() === true && privateTurn === 0) {
+      tiles[4].innerText = "X";
+      privateTurn += 1;
+    }
+  }
+
   // The gameOver function ends the game, increments the player score, recalls the game state.
   // param one: the player object of the winner
   // param two: the winning player number (one or two)
-  function gameOver(winner, playerNum) {
+  // param three: the ai player, just in case it's an AI game
+  function gameOver(winner, playerNum, two) {
     winner.incrementScore();
     if (playerNum === "one") {
       const showScore = document.getElementById("one-name");
@@ -168,9 +179,10 @@
     const showWinner = document.getElementById("winner-name");
     showWinner.innerText = `Winner: ${winner.getName()}`;
 
+    const boardDisplay = document.getElementById("brd");
+    const tiles = boardDisplay.children; // get tiles to be filled in
+
     setTimeout(() => {
-      const boardDisplay = document.getElementById("brd");
-      const tiles = boardDisplay.children; // get tiles to be filled in
       for (let i = 0; i < tiles.length; i += 1) {
         tiles[i].removeAttribute("id");
         tiles[i].onclick = () => {}; // remove event listeners
@@ -180,9 +192,10 @@
       // Needs to be in here, since this timeout happens last.
       // Do not remove this flag.
       privateFlag = false;
-    }, 1000); // Delays the board wipe by 1 second, prevents an extra X/O from spawning.
+      privateTurn = 0;
 
-    privateTurn = 0;
+      if (aiInGame === true) { aiStarts(two, tiles); }
+    }, 1000); // Delays the board wipe by 1 second, prevents an extra X/O from spawning.
   }
 
   function checkDraw() {
@@ -199,14 +212,16 @@
     return false; // there is no draw
   }
 
-  function drawGame() {
+  function drawGame(two) {
     const showWinner = document.getElementById("winner-name");
     showWinner.innerText = "The last game ended in a draw.";
 
+    const boardDisplay = document.getElementById("brd");
+    const tiles = boardDisplay.children; // get tiles to be filled in
+
     setTimeout(() => {
-      const boardDisplay = document.getElementById("brd");
-      const tiles = boardDisplay.children; // get tiles to be filled in
       for (let i = 0; i < tiles.length; i += 1) {
+        tiles[i].removeAttribute("id");
         tiles[i].onclick = () => {}; // remove event listeners
         tiles[i].innerText = ""; // remove text
       }
@@ -214,9 +229,10 @@
       // Needs to be in here, since this timeout happens last.
       // Do not remove this flag.
       privateFlag = false;
-    }, 1000); // Delays the board wipe by 1 second, prevents an extra X/O from spawning.
+      privateTurn = 0;
 
-    privateTurn = 0;
+      if (aiInGame === true) { aiStarts(two, tiles); }
+    }, 1000); // Delays the board wipe by 1 second, prevents an extra X/O from spawning.
   }
 
   // The gameStateCheck function fins out if the turn is even or odd, takes the
@@ -233,16 +249,17 @@
       // Check if player one started/played Xs.
       if (one.getStart() === true) {
         privateFlag = true;
-        gameOver(one, "one"); // if one started, and even/X wins, then one wins
-      } else { privateFlag = true; gameOver(two, "two"); }
+        console.log(two.getStart());
+        gameOver(one, "one", two); // if one started, and even/X wins, then one wins
+      } else { privateFlag = true; gameOver(two, "two", two); }
     } else if (checkWinner() === true && evenOdd === "odd") {
       if (one.getStart() !== true) {
         privateFlag = true;
-        gameOver(one, "one"); // if one didn't start, and odd/O wins, then one wins
-      } else if (one.getStart() === true) { privateFlag = true; gameOver(two, "two"); }
+        gameOver(one, "one", two); // if one didn't start, and odd/O wins, then one wins
+      } else if (one.getStart() === true) { privateFlag = true; gameOver(two, "two", two); }
     } else if (checkDraw() === true) {
       privateFlag = true;
-      drawGame();
+      drawGame(two);
     } else {
       privateTurn += 1;
     }
@@ -285,15 +302,6 @@
   //   if (two.getStart() !== true && privateTurn % 2 !== 0) { return true; }
   //   return false;
   // }
-
-  // Handles the computer's first move.
-  function aiStarts(two, tiles) {
-    // If computer can start and it's turn 0, fill the middle tile.
-    if (two.getStart() === true && privateTurn === 0) {
-      tiles[4].innerText = "X";
-      privateTurn += 1;
-    }
-  }
 
   // Checks to see if the AI has two in a row with a spot waiting to be filled.
   function aiSelfWin(two) {
@@ -485,7 +493,10 @@
     return false;
   }
 
-  function aiPlays(two) {
+  // Controls the order of the ai's objectives. First, it checks to see if it can win.
+  // Second, it checks to see if the enemy player can win.
+  // Otherwise, it chooses the first available tile.
+  function aiObjectives(two) {
     const boardDisplay = document.getElementById("brd");
     const tiles = boardDisplay.children;
 
@@ -501,7 +512,7 @@
   function aiGame(one, two) {
     const boardDisplay = document.getElementById("brd");
     const tiles = boardDisplay.children; // get tiles to be filled in
-    aiStarts(two, tiles); // determines the AI's starting move, if X
+    aiStarts(two, tiles);
     for (let i = 0; i < tiles.length; i += 1) {
       tiles[i].addEventListener("click", () => {
         generateWithAI(tiles[i]);
@@ -517,7 +528,7 @@
           gameStateCheck("even", one, two);
           // AI follows player turn on the same click.
           if (privateFlag !== true) {
-            aiPlays(two);
+            aiObjectives(two);
             gameStateCheck("odd", one, two);
           } // check computer "O" win condition
         } else {
@@ -526,7 +537,7 @@
           gameStateCheck("odd", one, two);
           // AI follows player turn on the same click.
           if (privateFlag !== true) {
-            aiPlays(two);
+            aiObjectives(two);
             gameStateCheck("even", one, two);
           }
         }
@@ -555,7 +566,7 @@
     }
 
     displayScore(playerOne, playerTwo); // Initial score display.
-    if (playerTwo.getName() === "Computer") { aiGame(playerOne, playerTwo); } else { playGame(playerOne, playerTwo); } // Controls the game state.
+    if (playerTwo.getName() === "Computer") { aiInGame = true; aiGame(playerOne, playerTwo); } else { playGame(playerOne, playerTwo); } // Controls the game state.
   }
 
   // Form contains the following options: to name the first and second player,
